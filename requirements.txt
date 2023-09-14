@@ -1,0 +1,5 @@
+ORM-SQLite==0.0.2
+tflite-runtime==2.5.0.post1
+tflite-support==0.4.3
+opencv-python==4.7.0.72
+numpy==1.23.5
