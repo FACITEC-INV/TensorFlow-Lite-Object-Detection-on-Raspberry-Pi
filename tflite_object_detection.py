@@ -53,6 +53,8 @@ class ObjectDetection:
         self.end_records = []
         self.detection_count = 0
         self.detection_time_sum = 0
+        self.fps_count = 0
+        self.fps_sum = 0
 
     def __rgb_tensor(self,frame):
         frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -97,8 +99,8 @@ class ObjectDetection:
             self.detection_count += 1
             det_time_millis = end_time_millis - start_time_millis
             self.detection_time_sum += det_time_millis
-            print(f"Ult. detección: {det_time_millis}ms")
-            print(f"Tiempo promedio: {round(self.detection_time_sum / self.detection_count)}ms")
+            print(f"Last. det. time: {det_time_millis}ms")
+            print(f"Det. time avg: {round(self.detection_time_sum / self.detection_count)}ms")
         if(len(detections)>0 and track_objects):
             tracks = self.mot_tracker.update(np.array(detections))
         else:
@@ -106,9 +108,15 @@ class ObjectDetection:
         self.frame_count += 1
         now = time.time()
         if now - self.last_update > 1:
-            self.current_fps = f"{round(self.frame_count / (now-self.last_update),2)} fps"
+            fps = round(self.frame_count / (now-self.last_update),2)
+            self.current_fps = f"{fps} fps"
+            self.fps_sum += fps
+            self.fps_count += 1
             self.last_update = now
             self.frame_count = 0
+            print(self.current_fps)
+            if(self.fps_count>0):
+                print(f"fps avg: {round(self.fps_sum / self.fps_count, 2)}")
         return [det_labels, boxes, scores], tracks, frame
     
     def get_unique_objects(self,prediction,store=True):
@@ -151,11 +159,6 @@ class ObjectDetection:
         if count != None:
             cv2.putText(frame,"Cant.: "+str(count),(10, 100), font, 1.5, (0,255,255), 2, cv2.LINE_AA)
         return frame
-    
-    def print_results(self,prediction,count=None):
-        print(self.current_fps)
-        if count != None:
-            print("Cant.: "+str(count))
     
     def __draw_lines(self,frame):
         line_w = frame.shape[1] if self.line_orientation == "h" else frame.shape[0]

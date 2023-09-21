@@ -1,6 +1,6 @@
 import cv2
 from picamera2 import Picamera2
-from tflite_object_detection import ObjectDetection 
+from tflite_object_detection import ObjectDetection
 
 object_detection = ObjectDetection(
         model_name="spaghettinet_s",
